@@ -4,6 +4,7 @@ import morgan from 'morgan';
 import postRoutes from './src/routes/post.routes.js';
 import commentRoutes from './src/routes/comment.routes.js';
 import config from './src/config/index.js';
+import { testConnection } from './src/config/db.js';
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use(commentRoutes);
 
 app.listen(config.port, () => {
     console.log(`Server is running on http://localhost:${config.port}`);
+    testConnection(); // Test the database connection on startup
 });
 
 
