@@ -5,7 +5,8 @@ import postRoutes from './src/routes/post.routes.js';
 import commentRoutes from './src/routes/comment.routes.js';
 import config from './src/config/index.js';
 import { testConnection } from './src/config/db.js';
-
+import { errorHandler } from './src/middlewares/errorhandler.middleware.js';
+ 
 const app = express();
 
 app.use(express.json());
@@ -17,6 +18,7 @@ if (config.nodeEnv === 'development') {
 
 app.use('/posts', postRoutes);
 app.use(commentRoutes);
+app.use(errorHandler);
 
 app.listen(config.port, () => {
     console.log(`Server is running on http://localhost:${config.port}`);
