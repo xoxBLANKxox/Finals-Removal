@@ -3,28 +3,62 @@ import { pool } from '../config/db.js';
 import { ApiError } from '../utils/ApiError.js';
 
 export const getAllPosts = async () => {
-    const [posts] = await pool.query('SELECT * FROM posts');
+    const [posts] = await pool.query(
+        `SELECT
+            p.id,
+            p.title,
+            p.content,
+            p.authorId,
+            u.username AS authorUsername,
+            u.email AS authorEmail
+        FROM posts p
+        JOIN users u ON p.authorId = u.id`
+    );
+
     return posts;
 };
 
 export const getPostById = async (id) => {
-    const [rows] = await pool.query('SELECT * FROM posts WHERE id = ?', [id]);
+    const [rows] = await pool.query(
+        `SELECT
+            p.id,
+            p.title,
+            p.content,
+            p.authorId,
+            u.username AS authorUsername,
+            u.email AS authorEmail
+        FROM posts p
+        JOIN users u ON p.authorId = u.id
+        WHERE p.id = ?`,
+        [id]
+    );
+
     if (!rows[0]) {
-        throw new ApiError(404, "Post not found"); // Throws a specific error
+        throw new ApiError(404, "Post not found");
     }
+
     return rows[0];
 };
 
 export const createPost = async (postData) => {
-    const { title, content } = postData;
-    const [result] = await pool.query(
-        'INSERT INTO posts (title, content) VALUES (?, ?)',
-            [title, content]
-    );
-    const newPostId = result.insertId;
-    return getPostById(newPostId);
-};
+    const { title, content, authorId } = postData;
 
+    try {
+        const [result] = await pool.query(
+            'INSERT INTO posts (title, content, authorId) VALUES (?, ?, ?)',
+            [title, content, authorId]
+        );
+
+        const newPost = await getPostById(result.insertId);
+        return newPost;
+
+    } catch (error) {
+        if (error.code === 'ER_NO_REFERENCED_ROW_2') {
+            throw new ApiError(400, "Invalid author ID. User does not exist.");
+        }
+        throw error;
+    }
+};
     export const updatePost = async (id, postData) => {
     const { title, content } = postData;
     const [result] = await pool.query(
@@ -68,4 +102,14 @@ export const createPost = async (postData) => {
     }
 
     return { message: "Post deleted successfully" };
+};
+
+
+export const getPostsByAuthorId = async (authorId) => {
+    const [rows] = await pool.query(
+        'SELECT * FROM posts WHERE authorId = ?',
+        [authorId]
+    );
+
+    return rows;
 };

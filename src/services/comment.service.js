@@ -1,20 +1,37 @@
 // src/services/comment.service.js
+import { pool } from '../config/db.js';
+import { ApiError } from '../utils/ApiError.js';
 
-let comments = [
-    { id: 1, text: 'Comment 1', postId: 1 },
-    { id: 2, text: 'Comment 2', postId: 2 },
-    { id: 3, text: 'Comment 3', postId: 3 },
-];
-let nextId = 4;
+export const createComment = async (commentData) => {
+    const { content, postId, authorId } = commentData;
 
-export const getAllComments = () => comments;
+    try {
+        const [result] = await pool.query(
+            'INSERT INTO comments (content, postId, authorId) VALUES (?, ?, ?)',
+            [content, postId, authorId]
+        );
 
-export const getCommentsByPostId = (postId) => {
-    return comments.filter(comment => comment.postId === postId);
+        const [rows] = await pool.query(
+            'SELECT * FROM comments WHERE id = ?',
+            [result.insertId]
+        );
+
+        return rows[0];
+    } catch (error) {
+        if (error.code === 'ER_NO_REFERENCED_ROW_2') {
+            throw new ApiError(400, "Invalid postId or authorId. Related record does not exist.");
+        }
+        throw error;
+    }
 };
 
-export const createComment = (postId, text) => {
-    const newComment = { id: nextId++, text, postId };
-    comments.push(newComment);
-    return newComment;
+export const getAllComments = async () => {
+    const [rows] = await pool.query('SELECT * FROM comments');
+    return rows;
+};
+
+
+export const getCommentsByPostId = async (postId) => {
+    const [rows] = await pool.query('SELECT * FROM comments WHERE postId = ?', [postId]);
+    return rows;
 };
