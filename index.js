@@ -7,6 +7,7 @@ import  userRoutes from './src/routes/user.routes.js';
 import config from './src/config/index.js';
 import { testConnection } from './src/config/db.js';
 import { errorHandler } from './src/middlewares/errorhandler.middleware.js';
+import authRoutes from './src/routes/auth.routes.js';
  
 const app = express();
 
@@ -18,6 +19,7 @@ if (config.nodeEnv === 'development') {
     app.use(morgan('combined'));
 }
  
+app.use('/api/auth', authRoutes); 
 app.use('/api/posts', postRoutes);
 app.use('/api/comments', commentRoutes);   
 app.use('/api/users', userRoutes);
