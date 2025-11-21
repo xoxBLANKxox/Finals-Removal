@@ -30,25 +30,17 @@ export const validatePost = [
 ];
 
 
+
 export const validateComment = [
-    body('content')
+    body('text')
         .trim()
         .notEmpty()
-        .withMessage('Content is required.'),
-
-    body('postId')
-        .notEmpty()
-        .withMessage('postId is required.')
-        .bail()
-        .isInt({ gt: 0 })
-        .withMessage('postId must be a positive integer.'),
+        .withMessage('Comment text is required.'),
 
     body('authorId')
-        .notEmpty()
-        .withMessage('authorId is required.')
-        .bail()
-        .isInt({ gt: 0 })
-        .withMessage('authorId must be a positive integer.'),
+        .isInt({ min: 1 })
+        .withMessage('A valid author ID is required.'),
+
 
     (req, res, next) => {
         const errors = validationResult(req);

@@ -11,21 +11,22 @@ import { errorHandler } from './src/middlewares/errorhandler.middleware.js';
 const app = express();
 
 app.use(express.json());
+
 if (config.nodeEnv === 'development') {
     app.use(morgan('dev'));
 } else {
     app.use(morgan('combined'));
 }
-
-app.use('/posts', postRoutes);
-app.use('/users', userRoutes);
-app.use('/comments', commentRoutes);
+ 
+app.use('/api/posts', postRoutes);
+app.use('/api/comments', commentRoutes);   
+app.use('/api/users', userRoutes);
 
 app.use(errorHandler);
 
 app.listen(config.port, () => {
     console.log(`Server is running on http://localhost:${config.port}`);
-    testConnection(); // Test the database connection on startup
+    testConnection();
 });
 
 

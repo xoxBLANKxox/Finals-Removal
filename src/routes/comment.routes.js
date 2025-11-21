@@ -5,10 +5,13 @@ import { validateComment } from '../middlewares/validator.middleware.js';
 
 const router = Router();
 
-// POST /comments
-router.post('/', validateComment, commentController.createComment);
-
-// GET /comments
+// Get all comments
 router.get('/', commentController.getAllComments);
+
+// Get all comments for a specific post
+router.get('/post/:postId', commentController.getCommentsByPostId);
+
+// Create a new comment for a specific post
+router.post('/post/:postId', validateComment, commentController.createCommentForPost);
 
 export default router;
