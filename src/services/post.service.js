@@ -40,8 +40,8 @@ export const getPostById = async (id) => {
     return rows[0];
 };
 
-export const createPost = async (postData) => {
-    const { title, content, authorId } = postData;
+export const createPost = async (postData, authorId) => {
+    const { title, content } = postData;
 
     try {
         const [result] = await pool.query(
@@ -51,7 +51,6 @@ export const createPost = async (postData) => {
 
         const newPost = await getPostById(result.insertId);
         return newPost;
-
     } catch (error) {
         if (error.code === 'ER_NO_REFERENCED_ROW_2') {
             throw new ApiError(400, "Invalid author ID. User does not exist.");
@@ -59,6 +58,7 @@ export const createPost = async (postData) => {
         throw error;
     }
 };
+
     export const updatePost = async (id, postData) => {
     const { title, content } = postData;
     const [result] = await pool.query(

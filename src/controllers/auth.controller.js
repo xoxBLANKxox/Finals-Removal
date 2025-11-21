@@ -1,26 +1,17 @@
-// src/controllers/auth.controller.js
 import * as userService from '../services/user.service.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
 import asyncHandler from 'express-async-handler';
 
 export const registerUser = asyncHandler(async (req, res) => {
-    const user = await userService.registerUser(req.body);
-
-    // 🛡️ Extra safety: remove password if it somehow exists
-    const { password, ...safeUser } = user;
-
+    const newUser = await userService.registerUser(req.body);
     res
         .status(201)
-        .json(new ApiResponse(201, safeUser, "User registered successfully"));
+        .json(new ApiResponse(201, newUser, "User registered successfully"));
 });
 
-// Login controller
 export const loginUser = asyncHandler(async (req, res) => {
-    const { email, password } = req.body;
-
-    const user = await userService.authenticateUser(email, password);
-
-    return res
+    const token = await userService.loginUser(req.body);
+    res
         .status(200)
-        .json(new ApiResponse(200, user, "Login successful"));
+        .json(new ApiResponse(200, { token }, "User logged in successfully"));
 });

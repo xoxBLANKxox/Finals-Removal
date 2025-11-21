@@ -21,8 +21,12 @@ export const getPostById = asyncHandler(async (req, res) => {
 
 
 export const createPost = asyncHandler(async (req, res) => {
-    const newPost = await postService.createPost(req.body);
-    return res
+    const authorId = req.user.id;      // ✅ comes from authMiddleware
+    const postData = req.body;         // title + content
+
+    const newPost = await postService.createPost(postData, authorId);
+
+    res
         .status(201)
         .json(new ApiResponse(201, newPost, "Post created successfully"));
 });

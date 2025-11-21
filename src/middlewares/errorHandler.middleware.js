@@ -6,13 +6,17 @@ export const errorHandler = (err, req, res, next) => {
     let message = "Internal Server Error";
 
     if (err instanceof ApiError) {
-        statusCode = err.statusCode;
-        message = err.message;
-    }
+    statusCode = err.statusCode;
+    message = err.message;
+  } else if (process.env.NODE_ENV === 'development') {
+    message = err.message || message;
+  }
 
-    // You can add more specific error checks here if needed
-    // for things like database unique constraint errors, etc.
+  const payload = { success: false, message };
 
+  if (process.env.NODE_ENV === 'development') {
+    payload.stack = err.stack;
+  }
     return res.status(statusCode).json({
         success: false,
         message: message,

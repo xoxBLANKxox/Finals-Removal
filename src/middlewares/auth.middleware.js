@@ -1,0 +1,28 @@
+// src/middlewares/auth.middleware.js
+import jwt from 'jsonwebtoken';
+import { ApiError } from '../utils/ApiError.js';
+import asyncHandler from 'express-async-handler';
+import { getUserById } from '../services/user.service.js';
+
+export const authMiddleware = asyncHandler(async (req, res, next) => {
+    let token;
+
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+        try {
+            token = req.headers.authorization.split(' ')[1];
+
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+            // Get fresh user from DB (ensures user still exists)
+            req.user = await getUserById(decoded.id);
+
+            return next();
+        } catch (error) {
+            throw new ApiError(401, "Not authorized, token failed");
+        }
+    }
+
+    if (!token) {
+        throw new ApiError(401, "Not authorized, no token");
+    }
+});

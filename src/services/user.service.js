@@ -1,7 +1,7 @@
-// src/services/user.service.js
-import { pool } from '../config/db.js';
+import { pool } from '../config/db.js';   // ✅ named import
 import { ApiError } from '../utils/ApiError.js';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 export const registerUser = async (userData) => {
     const { username, email, password } = userData;
@@ -14,10 +14,9 @@ export const registerUser = async (userData) => {
             [username, email, hashedPassword]
         );
 
-        // ✅ This returns user WITHOUT password
+        // Don’t return password
         const newUser = await getUserById(result.insertId);
         return newUser;
-
     } catch (error) {
         if (error.code === 'ER_DUP_ENTRY') {
             throw new ApiError(409, "Username or email already exists.");
@@ -27,12 +26,10 @@ export const registerUser = async (userData) => {
 };
 
 export const getUserById = async (id) => {
-    // ✅ EXPLICITLY exclude password
     const [rows] = await pool.query(
         'SELECT id, username, email, createdAt FROM users WHERE id = ?',
         [id]
     );
-
     if (rows.length === 0) {
         throw new ApiError(404, "User not found");
     }
@@ -46,34 +43,36 @@ export const getAllUsers = async () => {
     return users;
 };
 
-// Find user by email (including password hash)
-const getUserByEmailWithPassword = async (email) => {
+// 🔐 LOGIN: email + password → token
+export const loginUser = async (loginData) => {
+    const { email, password } = loginData;
+
+    // 1. Find user (including password hash)
     const [rows] = await pool.query(
-        'SELECT id, username, email, password, createdAt FROM users WHERE email = ?',
+        'SELECT * FROM users WHERE email = ?',
         [email]
     );
-
     if (rows.length === 0) {
-        throw new ApiError(401, "Invalid email or password");
+        throw new ApiError(401, "Invalid credentials");
+    }
+    const user = rows[0];
+
+    // 2. Check password
+    const isPasswordMatch = await bcrypt.compare(password, user.password);
+    if (!isPasswordMatch) {
+        throw new ApiError(401, "Invalid credentials");
     }
 
-    return rows[0];
-};
+    // 3. Create JWT
+    const payload = {
+        id: user.id,
+        username: user.username,
+        email: user.email
+    };
 
-//Authenticate user with email + password
-export const authenticateUser = async (email, plainPassword) => {
-    const userWithPassword = await getUserByEmailWithPassword(email);
+    const token = jwt.sign(payload, process.env.JWT_SECRET, {
+        expiresIn: '1h'
+    });
 
-    const passwordMatches = await bcrypt.compare(
-        plainPassword,
-        userWithPassword.password
-    );
-
-    if (!passwordMatches) {
-        throw new ApiError(401, "Invalid email or password");
-    }
-
-    // Remove password before returning
-    const { password, ...safeUser } = userWithPassword;
-    return safeUser;
+    return token; 
 };
