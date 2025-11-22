@@ -19,21 +19,23 @@ export const getPostById = asyncHandler(async (req, res) => {
         .json(new ApiResponse(200, post, "Post retrieved successfully"));
 });
 
-
 export const createPost = asyncHandler(async (req, res) => {
-    const authorId = req.user.id;      // ✅ comes from authMiddleware
+    const authorId = req.user.id;      // ✅ from auth middleware
     const postData = req.body;         // title + content
 
     const newPost = await postService.createPost(postData, authorId);
 
-    res
+    return res
         .status(201)
         .json(new ApiResponse(201, newPost, "Post created successfully"));
 });
 
 export const updatePost = asyncHandler(async (req, res) => {
     const postId = parseInt(req.params.id, 10);
-    const updatedPost = await postService.updatePost(postId, req.body);
+    const userId = req.user.id;        // current logged-in user
+
+    const updatedPost = await postService.updatePost(postId, req.body, userId);
+
     return res
         .status(200)
         .json(new ApiResponse(200, updatedPost, "Post updated successfully"));
@@ -41,16 +43,21 @@ export const updatePost = asyncHandler(async (req, res) => {
 
 export const deletePost = asyncHandler(async (req, res) => {
     const postId = parseInt(req.params.id, 10);
-    await postService.deletePost(postId);
+    const userId = req.user.id;        // current logged-in user
+
+    const result = await postService.deletePost(postId, userId);
+
     return res
         .status(200)
         .json(new ApiResponse(200, null, "Post deleted successfully"));
 });
 
-
 export const patchPost = asyncHandler(async (req, res) => {
     const postId = parseInt(req.params.id, 10);
-    const patchedPost = await postService.partiallyUpdatePost(postId, req.body);
+    const userId = req.user.id;        //  current logged-in user
+
+    const patchedPost = await postService.partiallyUpdatePost(postId, req.body, userId);
+
     return res
         .status(200)
         .json(new ApiResponse(200, patchedPost, "Post patched successfully"));

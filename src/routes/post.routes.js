@@ -10,8 +10,11 @@ const router = Router();
 router.get('/', postController.getAllPosts);
 router.get('/:id', postController.getPostById);
 
-// 🔐 Protected: must be logged in
+//  Protected: must be logged in
 router.post('/', authMiddleware, validatePost, postController.createPost);
+router.delete('/:id', authMiddleware, postController.deletePost);
+router.put('/:id', authMiddleware, validatePost, postController.updatePost);
+router.patch('/:id', authMiddleware, postController.patchPost);
 
 // (your other comment routes etc...)
 router.post('/:postId/comments', validateComment, commentController.createCommentForPost);

@@ -8,7 +8,7 @@ import commentRoutes from './src/routes/comment.routes.js';
 import  userRoutes from './src/routes/user.routes.js';
 import config from './src/config/index.js';
 import { testConnection } from './src/config/db.js';
-import { errorHandler } from './src/middlewares/errorhandler.middleware.js';
+import { errorHandler } from './src/middlewares/errorHandler.middleware.js';
 import authRoutes from './src/routes/auth.routes.js';
  
 const app = express();

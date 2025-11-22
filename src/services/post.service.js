@@ -59,8 +59,19 @@ export const createPost = async (postData, authorId) => {
     }
 };
 
-    export const updatePost = async (id, postData) => {
+// 🔐 UPDATE with ownership check
+export const updatePost = async (id, postData, userId) => {
     const { title, content } = postData;
+
+    // 1. Get post and check if it exists
+    const post = await getPostById(id); // throws 404 if not found
+
+    // 2. AUTHORIZATION CHECK — only the author can edit
+    if (post.authorId !== userId) {
+        throw new ApiError(403, "Forbidden: You do not have permission to edit this post.");
+    }
+
+    // 3. Proceed with update
     const [result] = await pool.query(
         "UPDATE posts SET title = ?, content = ? WHERE id = ?",
         [title, content, id]
@@ -72,29 +83,49 @@ export const createPost = async (postData, authorId) => {
 
     return getPostById(id);
 };
-    
-    export const partiallyUpdatePost = async (id, updates) => {
-        const fields = Object.keys(updates);
-        const values = Object.values(updates);
 
-        if (fields.length === 0) {
-            return getPostById(id);
-        }
-        
-        const setClause = fields.map(field => `${field} = ?`).join(', ');
-        
-        const [result] = await pool.query(
-            `UPDATE posts SET ${setClause} WHERE id = ?`,
-            [...values, id]
-        );
+// 🔐 PARTIAL UPDATE with ownership check
+export const partiallyUpdatePost = async (id, updates, userId) => {
+    // 1. Get post and check if it exists
+    const post = await getPostById(id); // throws 404 if not found
 
-        if (result.affectedRows === 0) {
-           throw new ApiError(404, "Post not found or no changes made");
-        }
+    // 2. AUTHORIZATION CHECK
+    if (post.authorId !== userId) {
+        throw new ApiError(403, "Forbidden: You do not have permission to edit this post.");
+    }
+
+    const fields = Object.keys(updates);
+    const values = Object.values(updates);
+
+    if (fields.length === 0) {
         return getPostById(id);
-    };
+    }
 
-       export const deletePost = async (id) => {
+    const setClause = fields.map(field => `${field} = ?`).join(', ');
+
+    const [result] = await pool.query(
+        `UPDATE posts SET ${setClause} WHERE id = ?`,
+        [...values, id]
+    );
+
+    if (result.affectedRows === 0) {
+        throw new ApiError(404, "Post not found or no changes made");
+    }
+
+    return getPostById(id);
+};
+
+// DELETE with ownership check
+export const deletePost = async (id, userId) => {
+    // 1. Get post and check if it exists
+    const post = await getPostById(id); // throws 404 if not found
+
+    // 2. AUTHORIZATION CHECK
+    if (post.authorId !== userId) {
+        throw new ApiError(403, "Forbidden: You do not have permission to delete this post.");
+    }
+
+    // 3. Proceed with delete
     const [result] = await pool.query("DELETE FROM posts WHERE id = ?", [id]);
 
     if (result.affectedRows === 0) {
@@ -103,7 +134,6 @@ export const createPost = async (postData, authorId) => {
 
     return { message: "Post deleted successfully" };
 };
-
 
 export const getPostsByAuthorId = async (authorId) => {
     const [rows] = await pool.query(
