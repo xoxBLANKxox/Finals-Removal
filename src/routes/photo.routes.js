@@ -6,13 +6,20 @@ import upload from '../middlewares/multer.middleware.js';
 
 const router = Router();
 
-// A user must be logged in for all photo routes
+// All routes require login
 router.use(authMiddleware);
 
+// GET /api/photos
 router.get('/', photoController.getUserPhotos);
+
+// DELETE /api/photos/:id
 router.delete('/:id', photoController.deleteUserPhoto);
 
-// The 'upload' middleware processes the file upload with the field name 'photo'
-router.post('/upload', upload.single('photo'), photoController.uploadPhoto);
+// POST /api/photos/upload
+router.post(
+    '/upload',
+    upload.single('photo'),
+    photoController.uploadPhoto
+);
 
 export default router;
