@@ -8,20 +8,20 @@
 ## Presentation Checklist
 
 -  Start the server successfully without errors.  
-![Server Running](image.png)
+![Server Running](/screenshots/image.png)
 
 -  Connect to the database and show that the necessary tables exist (`users`, `posts`, `comments`, `photos`).  
-![Show Tables](image-1.png)
+![Show Tables](/screenshots/image-1.png)
 
 -  Use a prepared Postman/Insomnia collection with requests for every endpoint.  
-![Postman Ready](image-2.png)
+![Postman Ready](/screenshots/image-2.png)
 
 -  Register at least two different users (User A and User B) to demonstrate ownership and authorization.  
-![User A](image-3.png)
-![User B](image-4.png)
+![User A](/screenshots/image-3.png)
+![User B](/screenshots/image-4.png)
 
 -  Use a sample image file to demonstrate the photo upload feature. 
-![Sample Image Ready](image-5.png)
+![Sample Image Ready](/screenshots/image-5.png)
 
 Explain:
 
@@ -38,22 +38,22 @@ Explain:
 ## 1. Core CRUD Functionality 
 
   - `POST /api/v1/posts` – create a post
-![Create Post](image6.png)
-![DB Post Proof](image9.png)
+![Create Post](/screenshots/image6.png)
+![DB Post Proof](/screenshots/image9.png)
 
   - `GET /api/v1/posts` – list all posts
-![List Post](image7.png)
+![List Post](/screenshots/image7.png)
 
   - `GET /api/v1/posts/:id` – get a post by ID
-![Get Post ID](image8.png)
+![Get Post ID](/screenshots/image8.png)
 
   - `PUT /api/v1/posts/:id` – update a post
-![Update Post](image10.png)
-![DB Update Post Proof](image11.png)
+![Update Post](/screenshots/image10.png)
+![DB Update Post Proof](/screenshots/image11.png)
 
   - `DELETE /api/v1/posts/:id` – delete a post  
-![Delete Post](image12.png)
-![DB Delete Post Proof](image13.png)
+![Delete Post](/screenshots/image12.png)
+![DB Delete Post Proof](/screenshots/image13.png)
 
 
 ---
@@ -61,15 +61,15 @@ Explain:
 ## 2. Authentication System
 
 - `POST /api/v1/auth/register` – registers a new user with **bcrypt-hashed** password.
-![User A](image-3.png)
-![User B](image-4.png)
+![User A](/screenshots/image-3.png)
+![User B](/screenshots/image-4.png)
 
 - `POST /api/v1/auth/login` – logs in a user, verifies credentials, and returns a **signed JWT**.
-![User A Login](image14.png)
-![User B Login](image15.png)
+![User A Login](/screenshots/image14.png)
+![User B Login](/screenshots/image15.png)
 
 - Showcase of the `users` table
-![DB users Table](image16.png)
+![DB users Table](/screenshots/image16.png)
 
 
 ---
@@ -77,12 +77,12 @@ Explain:
 ## 3. Authorization & Middleware
 
 - Protected routes (e.g. `/api/v1/posts`) return **401 Unauthorized** if no JWT is provided.  
-![No Token Posts](image17.png)
+![No Token Posts](/screenshots/image17.png)
 
 - User B cannot modify User A’s posts:
   - Attempts return **403 Forbidden** with a clear error message.  
-![User A Forbidden Post](image18.png)
-![403 Forbidden Deletion](image19.png)
+![User A Forbidden Post](/screenshots/image18.png)
+![403 Forbidden Deletion](/screenshots/image19.png)
 
 
 - The Middleware's for:
@@ -96,23 +96,23 @@ Explain:
 ## 4. File Uploads (Photos API)
 
 -  `POST /api/v1/photos/upload` – uploads an image using **multipart/form-data**.  
-![Photo Upload](image20.png)
+![Photo Upload](/screenshots/image20.png)
 
 -  The file is saved in the `uploads/` folder.  
-![File Proof](image21.png)
+![File Proof](/screenshots/image21.png)
 
 -  The correct `filePath`, `userId`, and `caption` are saved to the `photos` table.  
-![DB photos Table](image22.png)
+![DB photos Table](/screenshots/image22.png)
 
 -  `GET /api/v1/photos` – lists photos for the logged-in user.  
-![Get photos User A](image23.png)
+![Get photos User A](/screenshots/image23.png)
 
 - I can open the uploaded image in the browser via `/uploads/<filename>.jpg`.
-![Open photo in Browser](image24.png)
+![Open photo in Browser](/screenshots/image24.png)
 
 -  `DELETE /api/v1/photos/:id` – deletes the photo record **and** the physical file from disk.  
-![Delete photos User A](image25.png)
-![DB photos Deletion Proof](image26.png)
+![Delete photos User A](/screenshots/image25.png)
+![DB photos Deletion Proof](/screenshots/image26.png)
 
 ---
 
@@ -121,16 +121,16 @@ Explain:
 - All errors are handled by a **centralized error handler** returning clean JSON responses:
   - 400 (validation), 401, 403, 404.  
     - 400 Bad Request Example
-      ![400 Bad Request](image27.png)
+      ![400 Bad Request](/screenshots/image27.png)
 
     - 401 Unauthorized Example
-      ![401 Unauthorized](image28.png)
+      ![401 Unauthorized](/screenshots/image28.png)
 
     - 403 Forbidden Example
-      ![403 Forbidden Deletion](image19.png)
+      ![403 Forbidden Deletion](/screenshots/image19.png)
 
     - 404 Not Found Example
-      ![404 Not Found](image29.png)
+      ![404 Not Found](/screenshots/image29.png)
 
 - **Security hardening** implemented:
     - I use `helmet` to set safer HTTP headers, `cors` to control which frontend can access the API, and `express-rate-limit` to prevent abuse. There is a global rate limit on `/api`, and a stricter limit on `/api/v1/auth/login` and `/api/v1/auth/register` to protect against brute-force attacks.
@@ -138,7 +138,7 @@ Explain:
     -  I prefixed all routes with `/api/v1` so that future versions of the API like `/api/v2` can be added later without breaking existing clients.
 
     - Swagger documentation is available at `/api-docs` and includes:
-    ![api-docs](image30.png)
+    ![api-docs](/screenshots/image30.png)
 
 
 ---
